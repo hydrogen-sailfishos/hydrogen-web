@@ -56,6 +56,11 @@ export class ComposerViewModel extends ViewModel {
             this.emitChange("canSend");
             this.clearReplyingTo();
         }
+        document.dispatchEvent(new CustomEvent("framescript:log", {
+            "detail": {
+                "log": "sent message: " + message
+            }
+        }))
         return success;
     }
 

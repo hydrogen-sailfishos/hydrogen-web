@@ -30,6 +30,11 @@
                 {development: import.meta.env.DEV}
             );
             main(platform);
+            document.dispatchEvent(new CustomEvent("framescript:log", {
+                "detail": {
+                    "log": "testlog"
+                }
+            }))
         </script>
     </body>
 </html>

@@ -123,13 +123,6 @@ export class ServiceWorkerHandler {
             case "updatefound":
                 this._registration.installing.addEventListener("statechange", this);
                 break;
-            case "statechange": {
-                if (event.target.state === "installed") {
-                    this._proposeUpdate();
-                    event.target.removeEventListener("statechange", this);
-                }
-                break;
-            }
             case "controllerchange":
                 if (!this._currentController) {
                     // Clients.claim() in the SW can trigger a controllerchange event

@@ -22,7 +22,7 @@ import {SettingsStorage} from "./dom/SettingsStorage.js";
 import {Encoding} from "./utils/Encoding.js";
 import {OlmWorker} from "../../matrix/e2ee/OlmWorker.js";
 import {IDBLogger} from "../../logging/IDBLogger";
-import {ConsoleLogger} from "../../logging/ConsoleLogger";
+import {QtLogger} from "../../logging/QtLogger";
 import {RootView} from "./ui/RootView.js";
 import {Clock} from "./dom/Clock.js";
 import {ServiceWorkerHandler} from "./dom/ServiceWorkerHandler.js";
@@ -42,9 +42,9 @@ import {handleAvatarError} from "./ui/avatar.js";
 function addScript(src) {
     return new Promise(function (resolve, reject) {
         var s = document.createElement("script");
-        s.setAttribute("src", src );
-        s.onload=resolve;
-        s.onerror=reject;
+        s.setAttribute("src", src);
+        s.onload = resolve;
+        s.onerror = reject;
         document.body.appendChild(s);
     });
 }
@@ -67,6 +67,7 @@ async function loadOlm(olmPaths) {
     }
     return null;
 }
+
 // turn asset path to absolute path if it isn't already
 // so it can be loaded independent of base
 function assetAbsPath(assetPath) {
@@ -138,7 +139,7 @@ export class Platform {
         this.history = new History();
         this.onlineStatus = new OnlineStatus();
         this._serviceWorkerHandler = null;
-        if (assetPaths.serviceWorker && "serviceWorker" in navigator) {
+        if (false && assetPaths.serviceWorker && "serviceWorker" in navigator) {
             this._serviceWorkerHandler = new ServiceWorkerHandler();
             this._serviceWorkerHandler.registerAndStart(assetPaths.serviceWorker);
         }
@@ -160,21 +161,12 @@ export class Platform {
         this._disposables = new Disposables();
         this._olmPromise = undefined;
         this._workerPromise = undefined;
+        this.logger.log("initialized platform!")
     }
 
     _createLogger(isDevelopment) {
-        // Make sure that loginToken does not end up in the logs
-        const transformer = (item) => {
-            if (item.e?.stack) {
-                item.e.stack = item.e.stack.replace(/\/\?loginToken=(.+)/, "?loginToken=<snip>");
-            }
-            return item;
-        };
-        if (isDevelopment) {
-            this.logger = new ConsoleLogger({platform: this});
-        } else {
-            this.logger = new IDBLogger({name: "hydrogen_logs", platform: this, serializedTransformer: transformer});
-        }
+        this.logger = new QtLogger({platform: this});
+        this.logger.log("initialized logging!")
     }
 
     get updateService() {
@@ -294,7 +286,11 @@ export class Platform {
     }
 }
 
+
 import {LogItem} from "../../logging/LogItem";
+import {BaseLogger} from "../../logging/BaseLogger";
+import {ILogExport} from "../../logging/types";
+
 export function tests() {
     return {
         "loginToken should not be in logs": (assert) => {
@@ -307,7 +303,8 @@ export function tests() {
             const logger = {
                 _queuedItems: [],
                 _serializedTransformer: transformer,
-                _now: () => {}
+                _now: () => {
+                }
             };
             logger.persist = IDBLogger.prototype._persistItem.bind(logger);
             const logItem = new LogItem("test", 1, logger);
