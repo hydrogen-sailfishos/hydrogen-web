@@ -16,7 +16,8 @@ limitations under the License.
 
 import {BaseLogger} from "./BaseLogger";
 import {LogItem} from "./LogItem";
-import type {ILogItem, LogItemValues, ILogExport} from "./types";
+import type {ILogExport, ILogItem, LogItemValues} from "./types";
+import {LogLevel} from "./LogFilter";
 
 export class QtLogger extends BaseLogger {
     _persistItem(item: LogItem): void {
@@ -24,6 +25,7 @@ export class QtLogger extends BaseLogger {
     }
 
     async export(): Promise<ILogExport | undefined> {
+        printToConsole( new LogItem("no logs to export", LogLevel.Info, this));
         return undefined;
     }
 }
@@ -42,7 +44,6 @@ function filterValues(values: LogItemValues): LogItemValues | null {
 
 function printToConsole(item: LogItem): void {
     const label = `${itemCaption(item)} (${item.duration}ms)`;
-
     if (item.error) {
         send(item.error);
     } else {

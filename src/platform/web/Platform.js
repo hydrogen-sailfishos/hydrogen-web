@@ -136,6 +136,8 @@ export class Platform {
         this.encoding = new Encoding();
         this.random = Math.random;
         this._createLogger(options?.development);
+        this.logger.run("initialized logging", async log => {await new Promise(r => setTimeout(r, 2000));
+            this.logger.log("non-async logmessage!");return "alpha"})
         this.history = new History();
         this.onlineStatus = new OnlineStatus();
         this._serviceWorkerHandler = null;
