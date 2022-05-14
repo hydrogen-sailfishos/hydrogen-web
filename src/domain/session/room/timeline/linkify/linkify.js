@@ -25,7 +25,7 @@ import { regex } from "./regex.js";
  * @param {function(string, boolean)} callback A function to call with split tokens
  */
 export function linkify(text, callback) {
-    const matches = text.matchAll(regex);
+    const matches = [];
     let curr = 0;
     for (let match of matches) {
         const precedingText = text.slice(curr, match.index);
