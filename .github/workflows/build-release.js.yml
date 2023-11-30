@@ -7,7 +7,9 @@ name: Code checks
 
 on:
   push:
-    branches: [ master ]
+    branches: [ "master", "sfos*" ]
+    tags:
+      - "sfos*"
   pull_request:
     branches: [ master ]
 
@@ -15,6 +17,8 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     strategy:
       matrix:
@@ -47,14 +51,11 @@ jobs:
       run: yarn run tsc
     - name: Build project
       run: yarn build
-    - name: Bundle builded data
-      run: zip release.zip -r ./target/*
-    - name: Create Release
-      id: create_release
-      uses: marvinpinto/action-automatic-releases@latest
-      with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        automatic_release_tag: "latest"
-        prerelease: false
-        title: "Hydrogen-web fork for SFOS"
-        files: release.zip
+    - name: Bundle built data
+      run: tar -czf hydrogen-web-${{github.head_ref || github.ref_name}}.tar.gz -C ./target/ .
+    - name: Update release
+      if: startsWith(github.ref, 'refs/tags/')
+      run: |
+        gh release upload ${{ github.ref_name }} hydrogen-web-${{github.head_ref || github.ref_name}}.tar.gz --clobber
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
