@@ -8,6 +8,8 @@ name: Code checks
 on:
   push:
     branches: [ master ]
+    tags:
+      - "sfos*"
   pull_request:
     branches: [ master ]
 
@@ -48,13 +50,13 @@ jobs:
     - name: Build project
       run: yarn build
     - name: Bundle builded data
-      run: zip release.zip -r ./target/*
+      run: zip release-${{github.head_ref || github.ref_name}}.zip -r ./target/*
     - name: Create Release
       id: create_release
       uses: marvinpinto/action-automatic-releases@latest
+      if: ${{ github.event_name != 'pull_request'}}
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        automatic_release_tag: "latest"
         prerelease: false
         title: "Hydrogen-web fork for SFOS"
-        files: release.zip
+        files: release-${{github.head_ref || github.ref_name}}.zip
