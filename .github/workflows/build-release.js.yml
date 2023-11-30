@@ -9,7 +9,7 @@ on:
   push:
     branches: [ master ]
     tags:
-      - "v*"
+      - "sfos*"
   pull_request:
     branches: [ master ]
 
