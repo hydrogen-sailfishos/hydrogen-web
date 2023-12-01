@@ -17,6 +17,8 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     strategy:
       matrix:
@@ -51,12 +53,9 @@ jobs:
       run: yarn build
     - name: Bundle builded data
       run: zip release-${{github.head_ref || github.ref_name}}.zip -r ./target/*
-    - name: Create Release
-      id: create_release
-      uses: marvinpinto/action-automatic-releases@latest
-      if: ${{ github.event_name != 'pull_request'}}
-      with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        prerelease: false
-        title: "Hydrogen-web fork for SFOS"
-        files: release-${{github.head_ref || github.ref_name}}.zip
+    - name: Update release
+      if: startsWith(github.ref, 'refs/tags/')
+      run: |
+        gh release upload ${{ github.ref_name }} release-${{github.head_ref || github.ref_name}}.zip --clobber
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
